@@ -10,10 +10,19 @@ async function loadSettings(userId) {
   form.elements.theme.value = settings.theme;
   form.elements.statusMessage.value = settings.statusMessage;
   form.elements.emailOptIn.checked = Boolean(settings.emailOptIn);
-  document.getElementById("status-preview").innerHTML = `
-    <p><strong>${settings.displayName}</strong></p>
-    <p>${settings.statusMessage}</p>
-  `;
+  const preview = document.getElementById("status-preview");
+  preview.innerHTML = ""; // clear
+
+  const name = document.createElement("p");
+  const strong = document.createElement("strong");
+  strong.textContent = settings.displayName;
+  name.appendChild(strong);
+
+  const status = document.createElement("p");
+  status.textContent = settings.statusMessage;
+
+  preview.appendChild(name);
+  preview.appendChild(status);
 
   writeJson("settings-output", settings);
 }
@@ -61,11 +70,17 @@ document.getElementById("settings-form").addEventListener("submit", async (event
 });
 
 document.getElementById("enable-email").addEventListener("click", async () => {
-  const result = await api("/api/settings/toggle-email?enabled=1");
+  const result = await api("/api/settings/toggle-email", {
+    method: "POST",
+    body: JSON.stringify({ enabled: "1" })
+  });
   writeJson("settings-output", result);
 });
 
 document.getElementById("disable-email").addEventListener("click", async () => {
-  const result = await api("/api/settings/toggle-email?enabled=0");
+  const result = await api("/api/settings/toggle-email", {
+    method: "POST",
+    body: JSON.stringify({ enabled: "0" })
+  });
   writeJson("settings-output", result);
 });
